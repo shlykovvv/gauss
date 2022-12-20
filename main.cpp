@@ -47,6 +47,7 @@ struct RationalComplex {
         a_div = c * var.a_div * d * var.b_div;
         b_num = a * var.b_num * d * var.a_div + b * var.a_num * c * var.b_div;
         b_div = c * var.a_div * d * var.b_div;
+        reduce();
     }
 
     void operator/=(RationalComplex var) { //TODO: division by 0, reduce every dividing
@@ -62,8 +63,7 @@ struct RationalComplex {
         b_num = (-a * var.b_num * d * var.a_div + b * var.a_num * c * var.b_div) * denum;
         a_div = (c * var.a_div * d * var.b_div) * div;
         b_div = (c * var.a_div * d * var.b_div) * div;
-
-
+        reduce();
     }
 
     bool operator==(RationalComplex var) {
@@ -76,25 +76,27 @@ struct RationalComplex {
         long long int a2 = abs(a_div);
         long long int b1 = abs(b_num);
         long long int b2 = abs(b_div);
-        std::cout << "@@@";
-        std::cout << "[" << a1 << "!" << a2 << "]";
+        //std::cout << "@@@";
+        //std::cout << "[" << a1 << "!" << a2 << "]";
         while (a2 != 0) {
-            std::cout << "[" << a1 << "!" << a2 << "]";
+            //std::cout << "[" << a1 << "!" << a2 << "]";
             t = a2;
             a2 = a1 % a2;
             a1 = t;
         }
+        //std::cout << "#";
         a_num /= a1;
         a_div /= a1;
-        std::cout << "$$$";
+        //std::cout << "$$$";
         while (b2 != 0) {
-            std::cout << "[" << b1 << "!" << b2 << "]";
+            //std::cout << "[" << b1 << "!" << b2 << "]";
             t = b2;
             b2 = b1 % b2;
             b1 = t;
         }
         b_num /= b1;
         b_div /= b1;
+        //std::cout << std::endl;
     }
 
     void print() { //TODO: make const
@@ -104,7 +106,11 @@ struct RationalComplex {
             if ((a_num < 0 && a_div > 0) || (a_num > 0 && a_div < 0)) {
                 std::cout << "-";
             }
-            std::cout << "(" << abs(a_num) << "/" << abs(a_div) << ")";
+            if (abs(a_div) == 1) {
+                std::cout << abs(a_num);
+            } else{
+                std::cout << "(" << abs(a_num) << "/" << abs(a_div) << ")";
+            }
         }
         if (b_num != 0) {
             if ((b_num > 0 && b_div > 0) || (b_num < 0 && b_div < 0)) {
@@ -112,7 +118,11 @@ struct RationalComplex {
             } else {
                 std::cout << "-";
             }
-            std::cout << "i" << "(" << abs(b_num) << "/" << abs(b_div) << ")";
+            if (abs(b_div) == 1) {
+                std::cout << abs(b_num) << "i";
+            } else{
+                std::cout << "(" << abs(b_num) << "/" << abs(b_div) << ")i";
+            }
         }
         if (is_zero()) {
             std::cout << "0";
@@ -346,6 +356,16 @@ public:
         return matrix;
     }
 
+    void print_matrix() {
+        for (int i = 0; i < y_size; i++) {
+            for (int j = 0; j < x_size; j++) {
+                (*this)[i][j].print();
+                cout << ",";
+            }
+            cout << endl;
+        }
+    }
+
 };
 
 class Matrix final {
@@ -355,13 +375,15 @@ public:
     void
     division(Grid<RationalComplex> &matrix, int num) { //деление строчки, чтобы первое ненулевое число стало единичкой
         for (int j = 0; j < matrix.get_x_size(); j++) {
-            if ((matrix[num][j].a_num != 0 || matrix[num][j].b_num != 0)) { //TODO
+            if (not matrix[num][j].is_zero()) {  //TODO
                 for (int k = j + 1; k < matrix.get_x_size(); k++) {
                     matrix[num][k] /= matrix[num][j];
                     std::cout << "Dividing" << std::endl;
+                    //matrix.print_matrix();
                 }
                 matrix[num][j] /= matrix[num][j];
                 std::cout << "Dividing" << std::endl;
+                //matrix.print_matrix();
                 break;
             }
         }
@@ -374,14 +396,15 @@ public:
             if (not matrix[num1][j].is_zero()) {
                 for (int k = j + 1; k < matrix.get_x_size(); k++) {
                     RationalComplex help = matrix[num2][j];
-                    help /= matrix[num1][j];
+                    help /= matrix[num1][j]; //TODO mb optimize
                     help *= matrix[num1][k];
                     matrix[num2][k] -= help;
                     std::cout << "Subtracting" << std::endl;
-
+                    //matrix.print_matrix();
                 }
                 matrix[num2][j] -= matrix[num2][j];
                 std::cout << "Subtracting" << std::endl;
+                //matrix.print_matrix();
                 break;
             }
         }
@@ -569,7 +592,7 @@ public:
 
 };
 
-int main() {
+int main() { //TODO create other code files
 
     int rows;
     int columns;
@@ -579,16 +602,10 @@ int main() {
     cin >> columns;
 
     Grid<RationalComplex> matrix = Grid<RationalComplex>(rows, columns);
-    matrix = matrix.write(MATRIX_FILE, rows, columns);
+    matrix = matrix.write(MATRIX_FILE, rows, columns); //TODO excess arguments
     Grid<RationalComplex> &matr = matrix;
 
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < columns; j++) {
-            matrix[i][j].print();
-            cout << ", ";
-        }
-        cout << endl;
-    }
+    matrix.print_matrix();
 
     /*   for (int i = 0; i < rows; i++) {
            for (int j = 0; j < columns; j++) {
@@ -601,22 +618,9 @@ int main() {
     Matrix solver = Matrix();
 
     Grid<RationalComplex> answer = solver.final_solver(matr);
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < columns; j++) {
-            matrix[i][j].print();
-            cout << ",";
-        }
-        cout << endl;
-    }
+    matrix.print_matrix();
 
-
-    for (int i = 0; i < answer.get_y_size(); i++) {
-        for (int j = 0; j < answer.get_x_size(); j++) {
-            answer[i][j].print();
-            cout << ",";
-        }
-        cout << endl;
-    }
+    answer.print_matrix();
 
     return 0;
 }

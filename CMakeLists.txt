@@ -3,8 +3,5 @@ project(gauss)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_subdirectory(
-        bprinter/
-)
 
-add_executable(gauss test.cpp)
+add_executable(gauss main.cpp)
