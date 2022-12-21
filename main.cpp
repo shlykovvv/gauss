@@ -167,9 +167,18 @@ struct Grid final {
     void write(std::string filename) {
         std::ifstream input;
         input.open(filename);
+        bool f = true;
         for (int i = 0; i < y_size; i++) {
             for (int j = 0; j < x_size; j++) {
                 long long int a, b, c, d;
+                if (input.eof()) {
+                     if (f) {
+                         std::cout << "File ended, other values will be 0\n";
+                         f = false;
+                     }
+                    v[i][j] = RationalComplex();
+                    continue;
+                }
                 input >> a;
                 input >> b;
                 input >> c;
