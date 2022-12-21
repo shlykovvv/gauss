@@ -379,11 +379,11 @@ public:
                 for (int k = j + 1; k < matrix.get_x_size(); k++) {
                     matrix[num][k] /= matrix[num][j];
                     std::cout << "Dividing" << std::endl;
-                    //matrix.print_matrix();
+                    matrix.print_matrix();
                 }
                 matrix[num][j] /= matrix[num][j];
                 std::cout << "Dividing" << std::endl;
-                //matrix.print_matrix();
+                matrix.print_matrix();
                 break;
             }
         }
