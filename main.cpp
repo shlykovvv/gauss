@@ -1,12 +1,11 @@
 #include <iostream>
 #include <cassert>
-#include <cstdint>
 #include <vector>
 #include <stdio.h>
 #include <fstream>
-#include <sstream>
 
-#define MATRIX_FILE "C:/Users/Vova/CLionProjects/gauss/input2.txt" //TODO some other txt
+
+#define MATRIX_FILE "C:/Users/Vova/CLionProjects/gauss/input3.txt"
 
 
 struct RationalComplex final {
@@ -77,31 +76,23 @@ struct RationalComplex final {
         long long int a2 = abs(a_div);
         long long int b1 = abs(b_num);
         long long int b2 = abs(b_div);
-        //std::cout << "@@@";
-        //std::cout << "[" << a1 << "!" << a2 << "]";
         while (a2 != 0) {
-            //std::cout << "[" << a1 << "!" << a2 << "]";
             t = a2;
             a2 = a1 % a2;
             a1 = t;
         }
-        //std::cout << "#";
         a_num /= a1;
         a_div /= a1;
-        //std::cout << "$$$";
         while (b2 != 0) {
-            //std::cout << "[" << b1 << "!" << b2 << "]";
             t = b2;
             b2 = b1 % b2;
             b1 = t;
         }
         b_num /= b1;
         b_div /= b1;
-        //std::cout << std::endl;
     }
 
     void print() {
-        //std::cout << "*(" << a_num << "/" << a_div << ")" << "+i" << "(" << b_num << "/" << b_div << ")* -> ";
         reduce();
         if (a_num != 0) {
             if ((a_num < 0 && a_div > 0) || (a_num > 0 && a_div < 0)) {
@@ -196,7 +187,7 @@ struct Grid final {
         for (int i = 0; i < y_size; i++) {
             for (int j = 0; j < x_size; j++) {
                 v[i][j].print();
-                if (j != x_size-1) {std::cout << ",";}
+                if (j != x_size-1) {std::cout << ", ";}
             }
             std::cout << std::endl;
         }
@@ -214,13 +205,10 @@ public:
             if (not matrix(num,j).is_zero()) {
                 for (int k = j + 1; k < matrix.x_size; k++) {
                     matrix(num,k) /= matrix(num,j);
-                    std::cout << "Dividing" << std::endl;
-                    //matrix.print_matrix();
+                    //std::cout << "Dividing" << std::endl;
                 }
-                //std::cout << "biba" << std::endl;
                 matrix(num,j) /= matrix(num,j);
-                std::cout << "Dividing" << std::endl;
-                //matrix.print_matrix();
+                //std::cout << "Dividing" << std::endl;
                 break;
             }
         }
@@ -232,15 +220,13 @@ public:
             if (not matrix(num1, j).is_zero()) {
                 for (int k = j + 1; k < matrix.x_size; k++) {
                     RationalComplex help = matrix(num2, j);
-                    help /= matrix(num1, j); //TODO mb optimize
+                    help /= matrix(num1, j);
                     help *= matrix(num1, k);
                     matrix(num2, k) -= help;
-                    std::cout << "Subtracting" << std::endl;
-                    //matrix.print_matrix();
+                    //std::cout << "Subtracting" << std::endl;
                 }
                 matrix(num2, j) -= matrix(num2, j);
-                std::cout << "Subtracting" << std::endl;
-                //matrix.print_matrix();
+                //std::cout << "Subtracting" << std::endl;
                 break;
             }
         }
@@ -252,7 +238,7 @@ public:
             RationalComplex help = matrix(num1, j);
             matrix(num1, j) = matrix(num2, j);
             matrix(num2, j) = help;
-            std::cout << "Reversing" << std::endl;
+            //std::cout << "Reversing" << std::endl;
         }
     }
 
@@ -263,7 +249,6 @@ public:
         for (int step = 0; step < matrix.x_size; step++) { //прямой ход
             if (step >= matrix.y_size || step >= matrix.x_size) {
                 rank++;
-                std::cout << "**" << rank << std::endl;
                 break;
             }
             if (matrix(rank, step).is_zero()) {
@@ -271,7 +256,6 @@ public:
                     if (not matrix(i, step).is_zero()) {
                         if(f) {
                             rank++;
-                            std::cout << "@@" << rank << std::endl;
                         }
                         f = false;
                         reverse(matrix, step, i);
@@ -279,27 +263,19 @@ public:
                     }
 
                 }
-                //rank++;
-                //std::cout << "@@" << rank << std::endl;
                 continue; //к следующему столбцу, если первый нулевой
             }
-            //std::cout << "*1*step=" << step << std::endl;
             division(matrix, step);
-            //std::cout << "*1,5*step=" << step << std::endl;
             for (int j = step + 1; j < matrix.y_size; j++) {
-                //std::cout << "*1,75*" << std::endl;
                 subtracting(matrix, step, j);
             }
             rank += 1;
-            //std::cout << "*1,8rank=" << rank << std::endl;
         }
-        //std::cout << "*2*" << std::endl;
         for (int step = matrix.y_size - 1; step > 0; step--) { //обратный ход
             for (int substep = step - 1; substep >= 0; substep--) {
                 subtracting(matrix, step, substep);
             }
         }
-        //std::cout << "*3*" << std::endl;
         for (int key = 0; key < matrix.y_size; key++) {
             division(matrix, key);
         }
@@ -309,7 +285,6 @@ public:
     Grid final_solver(Grid &matrix) {
         //Выдает матрицу - фундаментальную систему решений однородного уравнения
         int rank = solve(matrix);
-        std::cout << "**" << rank << std::endl;
         if (rank>=matrix.x_size || rank>=matrix.y_size) {
             return Grid(RationalComplex());
         }
@@ -334,7 +309,6 @@ public:
             answer(i, i - rank) = help;
         }
         return answer;
-
     }
 
     /*Grid<RationalComplex> eigenvectors(Grid<RationalComplex> matrix, Grid<RationalComplex> eigenvalues) {
@@ -446,11 +420,9 @@ public:
         }
         return matrix;
     }*/
-
-
 };
 
-int main() { //TODO create other code files
+int main() {
 
     int rows;
     int columns;
@@ -462,16 +434,14 @@ int main() { //TODO create other code files
     Grid matrix = Grid(rows, columns);
     matrix.write(MATRIX_FILE);
     Grid &matr = matrix;
-
+    std::cout << "Matrix:" << std::endl;
     matrix.print_matrix();
-
-
 
     Matrix solver = Matrix();
-
     Grid answer = solver.final_solver(matr);
+    std::cout << "Triangular view:" << std::endl;
     matrix.print_matrix();
-
+    std::cout << "Solutions:" << std::endl;
     answer.print_matrix();
 
     return 0;
